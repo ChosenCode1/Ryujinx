@@ -193,19 +193,25 @@ namespace Ryujinx.Graphics.Vic.Image
             surface.UvWidth = cw;
             surface.UvHeight = ch;
 
-            if (planes > 0)
+            switch (planes)
             {
-                surface.Buffer0 = ReadBuffer(gmm, offsets.LumaOffset, linear, lw, lh, bytesPerPixel, gobBlocksInY);
-            }
-
-            if (planes > 1)
-            {
-                surface.Buffer1 = ReadBuffer(gmm, offsets.ChromaUOffset, linear, cw, ch, planes == 2 ? 2 : 1, gobBlocksInY);
-            }
-
-            if (planes > 2)
-            {
-                surface.Buffer2 = ReadBuffer(gmm, offsets.ChromaVOffset, linear, cw, ch, 1, gobBlocksInY);
+                case 1: surface.Buffer0 = ReadBuffer(gmm, offsets.LumaOffset, linear, lw, lh, bytesPerPixel, gobBlocksInY); break;
+                    
+                case 2: surface.Buffer0 = ReadBuffer(gmm, offsets.LumaOffset, linear, lw, lh, bytesPerPixel, gobBlocksInY);
+                        surface.Buffer1 = ReadBuffer(gmm, offsets.ChromaUOffset, linear, cw, ch, planes == 2 ? 2 : 1, gobBlocksInY);
+                        break;
+                    
+                case 3: surface.Buffer0 = ReadBuffer(gmm, offsets.LumaOffset, linear, lw, lh, bytesPerPixel, gobBlocksInY);
+                        surface.Buffer1 = ReadBuffer(gmm, offsets.ChromaUOffset, linear, cw, ch, planes == 2 ? 2 : 1, gobBlocksInY);
+                        surface.Buffer2 = ReadBuffer(gmm, offsets.ChromaVOffset, linear, cw, ch, 1, gobBlocksInY);
+                        break;
+                    
+                default: if (planes > 3)
+                         {
+                            surface.Buffer0 = ReadBuffer(gmm, offsets.LumaOffset, linear, lw, lh, bytesPerPixel, gobBlocksInY);
+                            surface.Buffer1 = ReadBuffer(gmm, offsets.ChromaUOffset, linear, cw, ch, planes == 2 ? 2 : 1, gobBlocksInY);
+                            surface.Buffer2 = ReadBuffer(gmm, offsets.ChromaVOffset, linear, cw, ch, 1, gobBlocksInY);
+                         } break;
             }
 
             return surface;
